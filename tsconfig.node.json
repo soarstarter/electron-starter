@@ -1,0 +1,23 @@
+{
+  "extends": "@electron-toolkit/tsconfig/tsconfig.node.json",
+  "include": [
+    "lib/main/index.d.ts",
+    "electron.vite.config.*",
+    "playwright.config.ts",
+    "vitest*.config.ts",
+    "test/**/*",
+    "lib/**/*",
+    "resources/**/*",
+    "app/**/*",
+    "shared/**/*"
+  ],
+  "compilerOptions": {
+    "composite": true,
+    "moduleResolution": "bundler",
+    "types": ["electron-vite/node"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    }
+  }
+}

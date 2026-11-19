@@ -1,0 +1,35 @@
+import { BrowserWindow, ipcMain, type IpcMainInvokeEvent } from 'electron'
+import { ipcSchemas, validateArgs, validateReturn, type ChannelArgs, type ChannelReturn } from '@/lib/conveyor/schemas'
+
+/**
+ * Helper to register IPC handlers
+ * @param channel - The IPC channel to register the handler for
+ * @param handler - The handler function to register
+ * @returns void
+ */
+export const handle = <T extends keyof typeof ipcSchemas>(
+  channel: T,
+  handler: (event: IpcMainInvokeEvent, ...args: ChannelArgs<T>) => ChannelReturn<T> | Promise<ChannelReturn<T>>
+) => {
+  ipcMain.handle(channel, async (event, ...args) => {
+    try {
+      const validatedArgs = validateArgs(channel, args)
+      const result = await handler(event, ...validatedArgs)
+
+      return validateReturn(channel, result)
+    } catch (error) {
+      console.error(`IPC Error in ${channel}:`, error)
+      throw error
+    }
+  })
+}
+
+export const getRequestingWindow = (event: IpcMainInvokeEvent): BrowserWindow => {
+  const window = BrowserWindow.fromWebContents(event.sender)
+
+  if (!window || window.isDestroyed()) {
+    throw new Error('IPC request does not belong to an active application window')
+  }
+
+  return window
+}

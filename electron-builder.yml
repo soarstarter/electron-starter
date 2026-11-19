@@ -1,0 +1,52 @@
+appId: com.soarstarter.electron-starter
+productName: Electron Starter
+asar: true
+asarUnpack:
+  - resources/**
+protocols:
+  - name: Electron Starter
+    schemes:
+      - electron-starter
+directories:
+  buildResources: resources/build
+files:
+  - out/**
+  - resources/**
+  - package.json
+win:
+  executableName: electron-starter
+  # Code signing is env-driven and skipped when unset: electron-builder signs
+  # the installer only when CSC_LINK (PFX/P12 path or base64) and
+  # CSC_KEY_PASSWORD are present in the environment (e.g. from CI secrets).
+  # Unsigned Windows builds run, but SmartScreen will warn users until the
+  # certificate accrues download reputation (an EV cert clears this instantly).
+nsis:
+  artifactName: ${name}-${version}-setup.${ext}
+  shortcutName: ${productName}
+  uninstallDisplayName: ${productName}
+  createDesktopShortcut: always
+mac:
+  # Hardened runtime + these entitlements are prerequisites for notarization.
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  entitlements: resources/build/entitlements.mac.plist
+  entitlementsInherit: resources/build/entitlements.mac.plist
+  extendInfo:
+    - NSCameraUsageDescription: Application requests access to the device's webcam.
+    - NSMicrophoneUsageDescription: Application requests access to the device's microphone.
+    - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
+    - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
+  # Local builds are unsigned and not notarized.
+  notarize: false
+dmg:
+  artifactName: ${name}-${version}.${ext}
+linux:
+  target:
+    - AppImage
+    - snap
+    - deb
+  maintainer: SoarStarter
+  category: Utility
+appImage:
+  artifactName: ${name}-${version}.${ext}
+npmRebuild: false

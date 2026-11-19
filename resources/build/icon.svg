@@ -1,0 +1,13 @@
+<svg width="100%" height="100%" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="app-icon-gradient" x1="150" y1="874" x2="874" y2="150" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2563eb" />
+      <stop offset="1" stop-color="#38bdf8" />
+    </linearGradient>
+  </defs>
+  <rect x="100" y="100" width="824" height="824" rx="184" fill="url(#app-icon-gradient)" />
+  <g transform="translate(-16,-54.5) scale(22)" fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14 30.5L24 16L34 30.5" stroke-width="3.4" />
+    <path d="M17.5 35.5L24 26L30.5 35.5" stroke-opacity="0.55" stroke-width="3.4" />
+  </g>
+</svg>

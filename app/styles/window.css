@@ -1,0 +1,73 @@
+:root {
+  color-scheme: dark;
+  --window-titlebar-height: 40px;
+  --window-scrollbar-width: 12px;
+  --window-background-transition-duration: 0s;
+
+  --window-c-background: #0f0f11;
+  --window-c-titlebar-background: #18181b;
+  --window-c-titlebar-border: transparent;
+  --window-c-scrollbar-track: #0f0f11c6;
+  --window-c-scrollbar-thumb: #88888863;
+  --window-c-scrollbar-thumb-hover: #555;
+}
+
+:root:not(.dark) {
+  color-scheme: light;
+
+  --window-c-background: #fff;
+  --window-c-titlebar-background: #fff;
+  --window-c-titlebar-border: #8080801a;
+  --window-c-scrollbar-track: #e0e0e0;
+  --window-c-scrollbar-thumb: #b0b0b0;
+  --window-c-scrollbar-thumb-hover: #888888cf;
+}
+
+.window-frame {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--window-c-background);
+  transition: background-color var(--window-background-transition-duration) ease;
+}
+
+.window-content {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.window-content > div:last-child {
+  height: 100%;
+}
+
+/* Drag region for the AppShell title bar. Children opt out with .no-drag. */
+.app-titlebar-drag {
+  -webkit-app-region: drag;
+}
+
+.app-titlebar-drag .no-drag,
+.app-titlebar-drag button,
+.app-titlebar-drag a,
+.app-titlebar-drag input {
+  -webkit-app-region: no-drag;
+}
+
+/* Custom scrollbars across the application */
+::-webkit-scrollbar {
+  width: var(--window-scrollbar-width);
+  height: var(--window-scrollbar-width);
+}
+
+::-webkit-scrollbar-track {
+  background-color: var(--window-c-scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--window-c-scrollbar-thumb);
+  border-radius: 4px;
+  border: 3px solid var(--window-c-scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--window-c-scrollbar-thumb-hover);
+}
