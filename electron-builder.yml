@@ -36,7 +36,9 @@ mac:
     - NSMicrophoneUsageDescription: Application requests access to the device's microphone.
     - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
     - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
-  # Local builds are unsigned and not notarized.
+  # Local builds are unsigned and not notarized. identity: null stops electron-builder
+  # from picking up a certificate in the keychain; remove it to sign with your own.
+  identity: null
   notarize: false
 dmg:
   artifactName: ${name}-${version}.${ext}
