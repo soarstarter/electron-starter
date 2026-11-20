@@ -4,11 +4,6 @@ All notable changes to Electron Starter are listed here. This project follows
 [Conventional Commits](https://www.conventionalcommits.org); see `git log` for
 the full history.
 
-Electron Starter started from
-[electron-react-app](https://github.com/guasam/electron-react-app) v12.1.0. Its
-release history before that point lives in that repository's `CHANGELOG.md`
-(see [`CREDITS.md`](CREDITS.md)).
-
 ## 1.0.0 — Unreleased
 
 First open-source release.
@@ -28,4 +23,4 @@ First open-source release.
   backup export and import.
 - Showcase: capability catalog with live demos and a components gallery, all
   removable via `docs/CUSTOMIZE.md`.
-- Removed the upstream Welcome Kit and custom titlebar menu.
+- Removed the Welcome Kit and custom titlebar menu.

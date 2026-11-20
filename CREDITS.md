@@ -2,20 +2,6 @@
 
 Electron Starter builds on the work of the open-source community.
 
-## Origin
-
-The desktop shell and Conveyor IPC system come from
-**[electron-react-app](https://github.com/guasam/electron-react-app)** by
-**[guasam](https://github.com/guasam)**, released under the MIT License. Its
-copyright notice is kept in [`LICENSE`](LICENSE).
-
-Electron Starter adds the desktop platform services (app intents, deep links,
-tray, notifications, shortcuts, window state), the app shell and settings
-center, security hardening, the Showcase, and the test suite.
-
-If you ship a product from this template, an attribution link back to the
-original project is appreciated but not required under the MIT License.
-
 ## Core stack
 
 - [Electron](https://www.electronjs.org) — cross-platform desktop runtime
