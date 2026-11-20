@@ -154,6 +154,8 @@
     "SECURITY.md",
     "app/showcase/pro-catalog.test.ts",
     "app/showcase/pro-catalog.ts",
+    "docs/social-preview/social-preview.html",
+    "docs/social-preview/social-preview.png",
     "lite-manifest.json",
     "scripts/check-lite.mjs",
     "scripts/install-git-hooks.mjs"
