@@ -1,7 +1,7 @@
 {
   "$schema-note": "Read by scripts/check-lite.mjs (pnpm check:lite) and by the sync skill in the commercial repository. proPaths: never allowed here. sharedFiles: exist in both editions but differ, so syncs must merge them by hand. liteOnlyFiles: exist only here and are never overwritten by a sync. Every other file is identical in both editions at source.lastSyncedCommit.",
   "source": {
-    "lastSyncedCommit": "21e01717ec360027cc557cf965e66ea203f3dca3",
+    "lastSyncedCommit": "dfb46156bd0da6c71c70109832726aabaf897cc7",
     "lastSyncedAt": "2026-11-19"
   },
   "proPaths": [

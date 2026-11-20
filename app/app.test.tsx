@@ -48,10 +48,10 @@ beforeEach(() => {
 
   window.conveyor = {
     app: {
-      version: vi.fn(() => Promise.resolve('12.1.0')),
+      version: vi.fn(() => Promise.resolve('1.0.0')),
       getDiagnostics: vi.fn(() =>
         Promise.resolve({
-          app: { name: 'Electron Starter', version: '12.1.0', commitSha: 'test', buildTime: 'test' },
+          app: { name: 'Electron Starter', version: '1.0.0', commitSha: 'test', buildTime: 'test' },
           versions: { electron: '40.0.0', chromium: '130.0', node: '22.0.0', v8: '13.0' },
           os: { platform: 'darwin', release: '25.5.0', arch: 'arm64' },
           logPath: '/tmp/electron-starter/main.log',

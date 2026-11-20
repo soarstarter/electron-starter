@@ -4,7 +4,7 @@ import { buildDiagnostics, type DiagnosticsSources } from './diagnostics'
 
 const sources: DiagnosticsSources = {
   name: 'Electron Starter',
-  version: '12.1.0',
+  version: '1.0.0',
   commitSha: 'abc1234',
   buildTime: '2026-06-14T00:00:00.000Z',
   versions: { electron: '40.1.0', chromium: '130.0', node: '22.0.0', v8: '13.0' },
@@ -20,7 +20,7 @@ describe('buildDiagnostics', () => {
 
     expect(diagnosticsSchema.safeParse(result).success).toBe(true)
     expect(result).toEqual({
-      app: { name: 'Electron Starter', version: '12.1.0', commitSha: 'abc1234', buildTime: '2026-06-14T00:00:00.000Z' },
+      app: { name: 'Electron Starter', version: '1.0.0', commitSha: 'abc1234', buildTime: '2026-06-14T00:00:00.000Z' },
       versions: { electron: '40.1.0', chromium: '130.0', node: '22.0.0', v8: '13.0' },
       os: { platform: 'darwin', release: '25.5.0', arch: 'arm64' },
       logPath: '/Users/test/Library/Logs/Electron Starter/main.log',
