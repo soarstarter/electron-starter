@@ -187,9 +187,10 @@ ignored.
   the icons in `resources/build/`. The full list is in [docs/CUSTOMIZE.md](docs/CUSTOMIZE.md).
 - Showcase: set `VITE_SHOWCASE_ENABLED=false` and `MAIN_VITE_SHOWCASE_ENABLED=false` to preview the app without it, then
   follow [docs/CUSTOMIZE.md](docs/CUSTOMIZE.md) to delete it.
-- Guides for each part of the template:
-  [soarstarter.com/docs/electron](https://soarstarter.com/docs/electron?utm_source=github&utm_campaign=electron-lite).
-  Pages marked Pro cover features that are not in this repository.
+- Going further: the
+  [SoarStarter Pro documentation](https://soarstarter.com/docs/electron?utm_source=github&utm_campaign=electron-lite)
+  covers the full template. Its pages on the desktop shell, IPC, settings, and Showcase also apply here; sign-in,
+  billing, auto-update, and release signing are Pro only.
 
 ## Contributing and security
 
