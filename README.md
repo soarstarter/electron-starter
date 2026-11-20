@@ -4,10 +4,6 @@ An open-source Electron + React desktop app starter that already feels like a fi
 tray, deep links, a searchable settings center, a command palette, onboarding, theming, and i18n. Clone it, run it, and
 replace the demo pages with your product.
 
-> Built on [guasam/electron-react-app](https://github.com/guasam/electron-react-app) (MIT). Electron Starter keeps its
-> shell and the Conveyor IPC layer, and adds the desktop platform services, app shell, settings, security hardening,
-> Showcase, and tests described below. See [CREDITS.md](CREDITS.md).
-
 [![CI](https://github.com/soarstarter/electron-starter/actions/workflows/ci.yml/badge.svg)](https://github.com/soarstarter/electron-starter/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 ![Electron 45](https://img.shields.io/badge/Electron-45-47848F)
@@ -200,9 +196,10 @@ ignored.
 Bug fixes and small improvements are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md). To report a vulnerability, follow
 [SECURITY.md](SECURITY.md) instead of opening a public issue.
 
-## Credits and license
+## License
 
-Electron Starter started from [electron-react-app](https://github.com/guasam/electron-react-app) by
-[guasam](https://github.com/guasam). Thanks to that project and to the libraries listed in [CREDITS.md](CREDITS.md).
+Electron Starter is released under the [MIT License](LICENSE). You can use, modify, and distribute it, including in
+commercial and closed-source apps, as long as the copyright and license notice in [LICENSE](LICENSE) is included in all
+copies or substantial portions of it.
 
-Released under the [MIT License](LICENSE).
+Third-party libraries keep their own licenses; the main ones are listed in [CREDITS.md](CREDITS.md).
