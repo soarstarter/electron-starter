@@ -3,6 +3,7 @@ import { app, dialog } from 'electron'
 import { readFile, stat, writeFile } from 'node:fs/promises'
 import { getRequestingWindow, handle } from '@/lib/main/shared'
 import type { WindowStateStore } from '@/lib/main/window-state'
+import { matchRecentFile } from '@/lib/main/recent-file-access'
 import type { SettingsStore } from '@/lib/main/settings'
 import type { ImageMimeType } from '@/lib/conveyor/schemas/file-schema'
 
@@ -66,18 +67,28 @@ export const registerFileHandlers = (windowStateStore: WindowStateStore, setting
     }
   })
 
+  // Only files already on the MRU list may be opened by path; anything else
+  // must go through the native open dialog (`file-open`).
   handle('file-open-path', async (_event, requestedPath) => {
-    try {
-      const content = await readFile(requestedPath, 'utf-8')
-      rememberFile(requestedPath)
-      return { canceled: false, path: requestedPath, content }
-    } catch (error) {
-      // The file may have been moved or deleted since it was added to the MRU
-      // list; drop it so the stale entry doesn't linger.
-      console.error('Failed to open recent file:', error)
-      settingsStore.removeRecentFile(requestedPath)
-      return { canceled: true, path: null, content: null }
+    const match = await matchRecentFile(requestedPath, settingsStore.get().recentFiles)
+    if (match.status === 'denied') {
+      throw new Error('file-open-path only opens files from the recent files list')
     }
+
+    if (match.status === 'allowed') {
+      try {
+        const content = await readFile(match.realPath, 'utf-8')
+        rememberFile(match.entry)
+        return { canceled: false, path: match.entry, content }
+      } catch (error) {
+        console.error('Failed to open recent file:', error)
+      }
+    }
+
+    // The file may have been moved or deleted since it was added to the MRU
+    // list; drop it so the stale entry doesn't linger.
+    settingsStore.removeRecentFile(match.entry)
+    return { canceled: true, path: null, content: null }
   })
 
   handle('file-save', async (event, { content, saveAs }) => {

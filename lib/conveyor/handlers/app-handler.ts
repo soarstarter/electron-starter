@@ -10,6 +10,7 @@ import { redactContext } from '@/lib/main/log-redact'
 import { getDiagnostics } from '@/lib/main/diagnostics'
 import { setMainLanguage } from '@/lib/main/i18n'
 import { buildBackup, parseBackup } from '@/lib/main/backup'
+import { keepKnownRecentFiles } from '@/lib/main/recent-file-access'
 import { APP_ID, PRODUCT_SLUG } from '@/shared/constants'
 
 interface AppHandlerDeps {
@@ -28,7 +29,11 @@ export const registerAppHandlers = (
   handle('version', () => app.getVersion())
   handle('get-settings', () => settingsStore.get())
   handle('set-settings', (_event, patch) => {
-    const next = settingsStore.update(patch)
+    const next = settingsStore.update(
+      patch.recentFiles === undefined
+        ? patch
+        : { ...patch, recentFiles: keepKnownRecentFiles(patch.recentFiles, settingsStore.get().recentFiles) }
+    )
     trayService.applySettings()
     return next
   })

@@ -18,6 +18,7 @@ export default defineConfig({
     include: [
       'shared/config.test.ts',
       'lib/conveyor/schemas/schemas.test.ts',
+      'lib/conveyor/handlers/file-handler.test.ts',
       'lib/preload/shared.test.ts',
       'lib/preload/preload.test.ts',
       'lib/main/app-intents.test.ts',
@@ -28,6 +29,7 @@ export default defineConfig({
       'lib/main/log-redact.test.ts',
       'lib/main/navigation-guard.test.ts',
       'lib/main/permissions.test.ts',
+      'lib/main/recent-file-access.test.ts',
       'lib/main/secure-storage.test.ts',
       'lib/main/settings.test.ts',
       'lib/main/window-state.test.ts',
