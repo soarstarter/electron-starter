@@ -1,8 +1,14 @@
-import { BrowserWindow, ipcMain, type IpcMainInvokeEvent } from 'electron'
+import { ipcMain, type BrowserWindow, type IpcMainInvokeEvent } from 'electron'
 import { ipcSchemas, validateArgs, validateReturn, type ChannelArgs, type ChannelReturn } from '@/lib/conveyor/schemas'
+import { resolveIpcSenderWindow } from './ipc-sender'
 
 /**
  * Helper to register IPC handlers
+ *
+ * Every request is checked before its arguments are parsed: it must come from
+ * the main frame of a window the app created (see `lib/main/ipc-sender.ts`).
+ * A request that fails the check throws and the handler is never called.
+ *
  * @param channel - The IPC channel to register the handler for
  * @param handler - The handler function to register
  * @returns void
@@ -13,6 +19,7 @@ export const handle = <T extends keyof typeof ipcSchemas>(
 ) => {
   ipcMain.handle(channel, async (event, ...args) => {
     try {
+      resolveIpcSenderWindow(event)
       const validatedArgs = validateArgs(channel, args)
       const result = await handler(event, ...validatedArgs)
 
@@ -24,12 +31,6 @@ export const handle = <T extends keyof typeof ipcSchemas>(
   })
 }
 
-export const getRequestingWindow = (event: IpcMainInvokeEvent): BrowserWindow => {
-  const window = BrowserWindow.fromWebContents(event.sender)
-
-  if (!window || window.isDestroyed()) {
-    throw new Error('IPC request does not belong to an active application window')
-  }
-
-  return window
-}
+/** The application window that sent `event`; throws if it is not a trusted sender. */
+export const getRequestingWindow = (event: IpcMainInvokeEvent): BrowserWindow =>
+  resolveIpcSenderWindow<BrowserWindow>(event)

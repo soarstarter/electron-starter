@@ -23,6 +23,8 @@ export default defineConfig({
       'lib/main/app-intents.test.ts',
       'lib/main/argv-intents.test.ts',
       'lib/main/external-url.test.ts',
+      'lib/main/ipc-sender.test.ts',
+      'lib/main/shared.test.ts',
       'lib/main/log-redact.test.ts',
       'lib/main/navigation-guard.test.ts',
       'lib/main/permissions.test.ts',

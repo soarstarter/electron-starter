@@ -6,6 +6,7 @@ import type { WindowStateStore } from './window-state'
 import type { SettingsStore } from './settings'
 import { openExternal } from './external-url'
 import { isAllowedInternalNavigation } from './navigation-guard'
+import { trustWindow } from './ipc-sender'
 
 const THEME_COLORS = {
   dark: {
@@ -68,6 +69,9 @@ export function createAppWindow(windowStateStore: WindowStateStore, settingsStor
       webSecurity: true,
     },
   })
+  // Only windows registered here may call IPC handlers (see ipc-sender.ts).
+  // Any future window must be registered the same way before it loads content.
+  trustWindow(mainWindow)
 
   let loadedUrl: string | null = null
   mainWindow.webContents.on('did-finish-load', () => {
