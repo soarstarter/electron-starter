@@ -62,14 +62,14 @@ await windowApi.webOpenUrl('https://example.com')
 
 ### In Main Process
 
-Handlers are registered by importing their registrar modules in the main process. Each handler module exports a registration function that sets up the IPC listeners with runtime validation.
+Handlers are registered by importing their registrar modules in the main process. Each handler module exports a registration function that sets up the IPC listeners with sender checks and runtime validation (see [Security](#security)).
 
 ```typescript
-// lib/main/app.ts
-import { registerAppHandlers } from '@/lib/conveyor/handlers/app-handler'
+// lib/main/main.ts
+import { registerLogsHandlers } from '@/lib/conveyor/handlers/logs-handler'
 
-// In your app initialization
-registerAppHandlers(app)
+// In initializeApplication()
+registerLogsHandlers()
 ```
 
 <br />
@@ -83,20 +83,16 @@ To add a new IPC channel, follow these steps in order:
 Create a schema file in `lib/conveyor/schemas/`:
 
 ```typescript
-// lib/conveyor/schemas/file-schema.ts
+// lib/conveyor/schemas/notes-schema.ts
 import { z } from 'zod'
 
-export const fileIpcSchema = {
-  'file-read': {
-    args: z.tuple([z.string()]),
+export const notesIpcSchema = {
+  'notes-get': {
+    args: z.tuple([]),
     return: z.string(),
   },
-  'file-write': {
-    args: z.tuple([z.string(), z.string()]),
-    return: z.void(),
-  },
-  'file-delete': {
-    args: z.tuple([z.string()]),
+  'notes-save': {
+    args: z.tuple([z.string().max(100_000)]),
     return: z.void(),
   },
 }
@@ -111,79 +107,80 @@ export const fileIpcSchema = {
 
 ```typescript
 // lib/conveyor/schemas/index.ts
-import { fileIpcSchema } from './file-schema'
+import { notesIpcSchema } from './notes-schema'
 
 export const ipcSchemas = {
   ...windowIpcSchema,
   ...appIpcSchema,
-  ...fileIpcSchema, // Add your new schema
+  ...notesIpcSchema, // Add your new schema
 } as const
 ```
 
 ### 3. Create the API class
 
-Create a new API class in `lib/conveyor/api/`:
+Create a new API class in `lib/conveyor/api/`. Declare each method as an arrow-function field that calls `this.invoke(...)` (or `this.subscribe(...)` for main-to-renderer events):
 
 ```typescript
-// lib/conveyor/api/file-api.ts
+// lib/conveyor/api/notes-api.ts
 import { ConveyorApi } from '@/lib/preload/shared'
 
-export class FileApi extends ConveyorApi {
-  readFile = (path: string) => this.invoke('file-read', path)
-  writeFile = (path: string, content: string) => this.invoke('file-write', path, content)
-  deleteFile = (path: string) => this.invoke('file-delete', path)
+export class NotesApi extends ConveyorApi {
+  get = () => this.invoke('notes-get')
+  save = (content: string) => this.invoke('notes-save', content)
 }
 ```
+
+`invoke` and `subscribe` are protected prototype methods and the underlying `ipcRenderer` is a JS private field, so neither reaches the page. Only the arrow-function fields do.
 
 ### 4. Add to the main conveyor export
 
 ```typescript
 // lib/conveyor/api/index.ts
-import { FileApi } from './file-api'
+import { NotesApi } from './notes-api'
 
-export const conveyor = {
-  app: new AppApi(electronAPI),
-  window: new WindowApi(electronAPI),
-  file: new FileApi(electronAPI), // Add your new API
-}
+export const conveyor = Object.freeze({
+  app: toBridgeObject(new AppApi(electronAPI)),
+  window: toBridgeObject(new WindowApi(electronAPI)),
+  notes: toBridgeObject(new NotesApi(electronAPI)), // Add your new API
+})
 
 export type ConveyorApi = typeof conveyor
 ```
+
+Always wrap the instance in `toBridgeObject`: it copies the domain's methods onto a plain frozen object, which is what crosses the contextBridge. Then add the new domain and its method names to `ALLOWED_METHODS` in `lib/preload/preload.test.ts`; the test fails on any method that is not allow-listed.
 
 The `ConveyorApi` type is automatically derived from the conveyor object structure, ensuring type safety and eliminating the need for manual type maintenance.
 
 ### 5. Create the handler
 
-Create a handler file in `lib/conveyor/handlers/`:
+Create a handler file in `lib/conveyor/handlers/`. The handler's first parameter is always the `IpcMainInvokeEvent`; the validated channel arguments follow it:
 
 ```typescript
-// lib/conveyor/handlers/file-handler.ts
-import { handle } from '@/lib/main/shared'
-import { readFileSync, writeFileSync, unlinkSync } from 'fs'
+// lib/conveyor/handlers/notes-handler.ts
+import { handle, getRequestingWindow } from '@/lib/main/shared'
+import type { NotesStore } from '@/lib/main/notes-store'
 
-export const registerFileHandlers = () => {
-  handle('file-read', (path: string) => {
-    return readFileSync(path, 'utf-8')
-  })
+export const registerNotesHandlers = (store: NotesStore) => {
+  handle('notes-get', () => store.get())
 
-  handle('file-write', (path: string, content: string) => {
-    writeFileSync(path, content, 'utf-8')
-  })
-
-  handle('file-delete', (path: string) => {
-    unlinkSync(path)
+  handle('notes-save', (event, content) => {
+    store.save(content)
+    // `event` identifies the sending window when a handler needs it.
+    getRequestingWindow(event).setTitle('Notes — saved')
   })
 }
 ```
 
+Never pass a renderer-supplied path, URL or command straight to the filesystem, a shell or the network. Accept an identifier the main process already knows (see how `file-open-path` only opens entries on the recent files list) or let the user pick through a native dialog.
+
 ### 6. Register handlers in main process
 
 ```typescript
-// lib/main/app.ts
-import { registerFileHandlers } from '@/lib/conveyor/handlers/file-handler'
+// lib/main/main.ts
+import { registerNotesHandlers } from '@/lib/conveyor/handlers/notes-handler'
 
-// In your app initialization
-registerFileHandlers()
+// In initializeApplication()
+registerNotesHandlers(notesStore)
 ```
 
 **Note**: Global types are automatically updated when you add new APIs to the conveyor export, so no manual updates are needed!
@@ -197,29 +194,48 @@ registerFileHandlers()
 
 ## Preload Integration
 
-The preload script exposes the conveyor APIs to the renderer with proper error handling:
+Windows run with `contextIsolation` and `sandbox` enabled, so the preload only ever exposes the conveyor through the contextBridge:
 
 ```typescript
 // lib/preload/preload.ts
 import { contextBridge } from 'electron'
 import { conveyor } from '@/lib/conveyor/api'
 
-if (process.contextIsolated) {
-  try {
-    contextBridge.exposeInMainWorld('conveyor', conveyor)
-  } catch (error) {
-    console.error(error)
-  }
-} else {
-  window.conveyor = conveyor
+try {
+  contextBridge.exposeInMainWorld('conveyor', conveyor)
+} catch (error) {
+  console.error(error)
 }
 ```
+
+In the page, each domain object holds only its own methods, for example `Object.keys(window.conveyor.logs)` is `['getPath', 'openFolder']`. There is no `renderer`, `invoke`, `subscribe`, `send` or `on`, and nothing that accepts an arbitrary channel name.
+
+## Security
+
+### Sender validation
+
+`handle()` checks the sender of every request before it parses the arguments. A request is accepted only when `event.senderFrame` is the main frame of a window the app created and registered with `trustWindow()` (`lib/main/ipc-sender.ts`). Requests from iframes, from a window that is closing or destroyed, or from any other webContents are rejected with a `FORBIDDEN_IPC_SENDER` error, and the handler is never called. This applies to every channel, including the dev-only ones.
+
+`createAppWindow` registers the main window. If you add another window, register it right after creating it and before it loads content:
+
+```typescript
+import { trustWindow } from '@/lib/main/ipc-sender'
+
+const settingsWindow = trustWindow(
+  new BrowserWindow({ webPreferences: { preload, sandbox: true, contextIsolation: true } })
+)
+```
+
+The registration is dropped automatically when the window closes. Every trusted window can call every channel; if a channel must be limited to one window, check that inside the handler, for example by comparing `getRequestingWindow(event)` with the window it belongs to.
+
+Inside a handler, `getRequestingWindow(event)` returns the trusted window that sent the request.
 
 ## Best Practices
 
 1. **Naming Convention**: Use kebab-case for channel names (e.g., `file-read`, `window-minimize`)
 2. **Schema Validation**: Always define Zod schemas for both arguments and return values
 3. **Error Handling**: The system automatically logs errors, but you can add custom error handling in handlers
-4. **Type Safety**: Leverage TypeScript's type inference - don't use `any` types
-5. **Modular Design**: Keep related functionality in separate api/handler/schema files
-6. **Consistent Structure**: Follow the existing pattern of api/handler/schema files for new features
+4. **Least Privilege**: Expose narrow, task-specific methods; never a method that forwards an arbitrary channel, path or command from the renderer
+5. **Type Safety**: Leverage TypeScript's type inference - don't use `any` types
+6. **Modular Design**: Keep related functionality in separate api/handler/schema files
+7. **Consistent Structure**: Follow the existing pattern of api/handler/schema files for new features

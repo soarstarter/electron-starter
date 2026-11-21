@@ -1,8 +1,8 @@
 {
   "$schema-note": "Read by scripts/check-lite.mjs (pnpm check:lite) and by the sync skill in the commercial repository. proPaths: never allowed here. sharedFiles: exist in both editions but differ, so syncs must merge them by hand. liteOnlyFiles: exist only here and are never overwritten by a sync. Every other file is identical in both editions at source.lastSyncedCommit.",
   "source": {
-    "lastSyncedCommit": "dfb46156bd0da6c71c70109832726aabaf897cc7",
-    "lastSyncedAt": "2026-11-19"
+    "lastSyncedCommit": "fbb821aa43c03a5995cf54eddbb88238888c0123",
+    "lastSyncedAt": "2026-11-21"
   },
   "proPaths": [
     "app/routes/auth/",
@@ -135,6 +135,7 @@
     "lib/main/shortcuts.test.ts",
     "lib/main/tray.ts",
     "lib/main/window-state.test.ts",
+    "lib/preload/preload.test.ts",
     "lib/preload/shared.test.ts",
     "package.json",
     "pnpm-lock.yaml",
