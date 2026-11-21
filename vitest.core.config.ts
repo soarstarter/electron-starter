@@ -19,6 +19,7 @@ export default defineConfig({
       'shared/config.test.ts',
       'lib/conveyor/schemas/schemas.test.ts',
       'lib/preload/shared.test.ts',
+      'lib/preload/preload.test.ts',
       'lib/main/app-intents.test.ts',
       'lib/main/argv-intents.test.ts',
       'lib/main/external-url.test.ts',
